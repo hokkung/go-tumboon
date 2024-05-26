@@ -19,7 +19,7 @@ import (
 const (
 	filePath                           = "../../../testutils/example_donation_file.csv.rot128"
 	filePathNoData                     = "../../../testutils/example_donation_file_no_data.csv.rot128"
-	filePathContainsWrongDataOneRecord = "../../../testutils/example_donation_file_wrong_data_one_record.csv.rot128"
+	filePathContainsWrongDataOneRow = "../../../testutils/example_donation_file_wrong_data_one_row.csv.rot128"
 )
 
 type DonationServiceTestSuite struct {
@@ -40,14 +40,14 @@ func TestDonationServiceTestSuite(t *testing.T) {
 func (suite *DonationServiceTestSuite) SetupSuite() {
 	testutils.GenerateMockDonationFile(filePath, "Name,AmountSubunits,CCNumber,CVV,ExpMonth,ExpYear\nJohn,100,1111111111111111,111,3,2026\nAmenda,20,2222222222222222,111,3,2026\nJohn,50,1111111111111111,111,3,2026\n")
 	testutils.GenerateMockDonationFile(filePathNoData, "Name,AmountSubunits,CCNumber,CVV,ExpMonth,ExpYear\n")
-	testutils.GenerateMockDonationFile(filePathContainsWrongDataOneRecord, "Name,AmountSubunits,CCNumber,CVV,ExpMonth,ExpYear\nJohn,100,1111111111111111,111,3,2026\nAmenda,20,a,111,3,2026\nJohn,50,1111111111111111,111,3,2026\n")
+	testutils.GenerateMockDonationFile(filePathContainsWrongDataOneRow, "Name,AmountSubunits,CCNumber,CVV,ExpMonth,ExpYear\nJohn,100,1111111111111111,111,3,2026\nAmenda,20,a,111,3,2026\nJohn,50,1111111111111111,111,3,2026\n")
 
 }
 
 func (suite *DonationServiceTestSuite) TearDownSuite() {
 	testutils.RemoveMockFile(filePath)
 	testutils.RemoveMockFile(filePathNoData)
-	testutils.RemoveMockFile(filePathContainsWrongDataOneRecord)
+	testutils.RemoveMockFile(filePathContainsWrongDataOneRow)
 }
 
 func (suite *DonationServiceTestSuite) TestMakePermit() {
@@ -131,12 +131,12 @@ func (suite *DonationServiceTestSuite) TestMakePermitNoData() {
 	suite.NoError(err)
 }
 
-func (suite *DonationServiceTestSuite) TestMakePermitContainsWrongDataOneRecord() {
+func (suite *DonationServiceTestSuite) TestMakePermitContainsWrongDataOneRow() {
 	suite.underTest = ds.NewDonationService(
 		suite.mockService,
 		config.Configuration{
 			DonationFileConfiguration: &config.DonationFileConfiguration{
-				DonationFileAddr: filePathContainsWrongDataOneRecord,
+				DonationFileAddr: filePathContainsWrongDataOneRow,
 				MaxConcurrent:    8,
 			},
 		},

@@ -219,20 +219,20 @@ func (s donationService) getDonationDetailFromFile() ([]model.Donation, error) {
 	var donations []model.Donation
 	r := csv.NewReader(bytes.NewReader(b))
 	for {
-		record, err := r.Read()
+		row, err := r.Read()
 		if err != nil {
 			if err == io.EOF {
 				break
 			}
 		}
 
-		if s.isHeaderFile(record) {
+		if s.isHeaderFile(row) {
 			continue
 		}
 
-		donation, err := model.NewDonation(record)
+		donation, err := model.NewDonation(row)
 		if err != nil {
-			fmt.Println("read record from csv failed", err)
+			fmt.Println("read row from csv failed", err)
 			continue
 		}
 
@@ -248,11 +248,11 @@ func (s donationService) getDonationDetailFromFile() ([]model.Donation, error) {
 	return donations, nil
 }
 
-func (s donationService) isHeaderFile(record []string) bool {
-	return record[0] == "Name" &&
-		record[1] == "AmountSubunits" &&
-		record[2] == "CCNumber" &&
-		record[3] == "CVV" &&
-		record[4] == "ExpMonth" &&
-		record[5] == "ExpYear"
+func (s donationService) isHeaderFile(row []string) bool {
+	return row[0] == "Name" &&
+		row[1] == "AmountSubunits" &&
+		row[2] == "CCNumber" &&
+		row[3] == "CVV" &&
+		row[4] == "ExpMonth" &&
+		row[5] == "ExpYear"
 }

@@ -42,6 +42,7 @@ func NewConfiguration() (*Configuration, error) {
 	}, nil
 }
 
+//ProvideConfiguration provides configuration for dependency injection.
 func ProvideConfiguration() (Configuration, error) {
 	cfg, err := NewConfiguration()
 	return *cfg, err

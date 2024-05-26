@@ -10,6 +10,7 @@ import (
 	gomock "github.com/golang/mock/gomock"
 	model "github.com/hokkung/go-tumboon/internal/model"
 	service "github.com/hokkung/go-tumboon/internal/service/donation"
+	service0 "github.com/hokkung/go-tumboon/internal/service/payment"
 )
 
 // MockDonationService is a mock of DonationService interface.
@@ -36,11 +37,12 @@ func (m *MockDonationService) EXPECT() *MockDonationServiceMockRecorder {
 }
 
 // Donate mocks base method.
-func (m *MockDonationService) Donate(donation model.Donation) error {
+func (m *MockDonationService) Donate(donation model.Donation) (*service0.PaymentResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Donate", donation)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(*service0.PaymentResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // Donate indicates an expected call of Donate.

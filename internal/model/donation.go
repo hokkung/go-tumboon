@@ -6,6 +6,7 @@ import (
 	"time"
 )
 
+// Donation collects donation information.
 type Donation struct {
 	Name           string     `validate:"required"`
 	AmountSubunits int64      `validate:"required"`
@@ -19,6 +20,7 @@ var (
 	ErrInvalidRawDataSize = errors.New("invalid raw data size")
 )
 
+// NewDonation creates donation.
 func NewDonation(raw []string) (*Donation, error) {
 	if len(raw) < 6 {
 		return nil, ErrInvalidRawDataSize

@@ -35,11 +35,12 @@ func (m *MockPaymentService) EXPECT() *MockPaymentServiceMockRecorder {
 }
 
 // Do mocks base method.
-func (m *MockPaymentService) Do(payment service.PaymentRequest) error {
+func (m *MockPaymentService) Do(payment service.PaymentRequest) (*service.PaymentResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Do", payment)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(*service.PaymentResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // Do indicates an expected call of Do.

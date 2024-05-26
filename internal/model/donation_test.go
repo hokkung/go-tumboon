@@ -18,15 +18,15 @@ func TestNewDonation(t *testing.T) {
 
 	recs := []string{name, amountSubunits, CCNumber, CVV, expMonth, expYear}
 
-	detail, err := model.NewDonation(recs)
+	donation, err := model.NewDonation(recs)
 
 	assert.Nil(t, err)
-	assert.Equal(t, name, detail.Name)
-	assert.Equal(t, int64(100), detail.AmountSubunits)
-	assert.Equal(t, CCNumber, detail.CCNumber)
-	assert.Equal(t, CVV, detail.CVV)
-	assert.Equal(t, time.January, detail.ExpMonth)
-	assert.Equal(t, 2025, detail.ExpYear)
+	assert.Equal(t, name, donation.Name)
+	assert.Equal(t, int64(100), donation.AmountSubunits)
+	assert.Equal(t, CCNumber, donation.CCNumber)
+	assert.Equal(t, CVV, donation.CVV)
+	assert.Equal(t, time.January, donation.ExpMonth)
+	assert.Equal(t, 2025, donation.ExpYear)
 }
 
 func TestNewDonationInvalidRawData(t *testing.T) {
@@ -38,11 +38,11 @@ func TestNewDonationInvalidRawData(t *testing.T) {
 
 	recs := []string{name, amountSubunits, CCNumber, CVV, expMonth}
 
-	detail, err := model.NewDonation(recs)
+	donation, err := model.NewDonation(recs)
 
 	assert.Error(t, err)
 	assert.EqualError(t, err, model.ErrInvalidRawDataSize.Error())
-	assert.Nil(t, detail)
+	assert.Nil(t, donation)
 }
 
 func TestNewDonationWrongAmountSubunits(t *testing.T) {
@@ -55,10 +55,10 @@ func TestNewDonationWrongAmountSubunits(t *testing.T) {
 
 	recs := []string{name, amountSubunits, CCNumber, CVV, expMonth, expYear}
 
-	detail, err := model.NewDonation(recs)
+	donation, err := model.NewDonation(recs)
 
 	assert.Error(t, err)
-	assert.Nil(t, detail)
+	assert.Nil(t, donation)
 }
 
 func TestNewDonationWrongMonth(t *testing.T) {
@@ -71,10 +71,10 @@ func TestNewDonationWrongMonth(t *testing.T) {
 
 	recs := []string{name, amountSubunits, CCNumber, CVV, expMonth, expYear}
 
-	detail, err := model.NewDonation(recs)
+	donation, err := model.NewDonation(recs)
 
 	assert.Error(t, err)
-	assert.Nil(t, detail)
+	assert.Nil(t, donation)
 }
 
 func TestNewDonationWrongYear(t *testing.T) {
@@ -87,8 +87,8 @@ func TestNewDonationWrongYear(t *testing.T) {
 
 	recs := []string{name, amountSubunits, CCNumber, CVV, expMonth, expYear}
 
-	detail, err := model.NewDonation(recs)
+	donation, err := model.NewDonation(recs)
 
 	assert.Error(t, err)
-	assert.Nil(t, detail)
+	assert.Nil(t, donation)
 }

@@ -60,17 +60,22 @@ func (suite *PaymentServiceTestSuite) TestDo() {
 		Card:     "card_test_5fz2lvcrbnao9mkwz80",
 	}).DoAndReturn(func(result interface{}, _ interface{}) error {
 		charge := result.(*omise.Charge)
+		charge.Amount = 1000
 		charge.ID = "charge_test_5fz2lvcrbnao9mkwz80"
 		return nil
 	})
 
-	err := suite.underTest.Do(mockReq)
+	res, err := suite.underTest.Do(mockReq)
 
 	suite.NoError(err)
+	suite.Equal(mockReq.AmountSubunits, res.Amount)
+	suite.Equal(true, res.IsSuccess)
+	suite.Equal(mockReq, res.Source)
+
 }
 
 func (suite *PaymentServiceTestSuite) TestDoUnSupportedPaymentMethod() {
-	err := suite.underTest.Do(service.PaymentRequest{
+	res, err := suite.underTest.Do(service.PaymentRequest{
 		Type:           service.Cash,
 		Name:           "John Doe",
 		CCNumber:       "4242424242424242",
@@ -82,4 +87,6 @@ func (suite *PaymentServiceTestSuite) TestDoUnSupportedPaymentMethod() {
 
 	suite.Error(err)
 	suite.Equal(service.ErrUnSupportedPaymentMethod, err)
+	suite.Equal(false, res.IsSuccess)
+	suite.Equal(int64(0), res.Amount)
 }

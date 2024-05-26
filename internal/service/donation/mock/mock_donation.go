@@ -36,32 +36,32 @@ func (m *MockDonationService) EXPECT() *MockDonationServiceMockRecorder {
 }
 
 // Donate mocks base method.
-func (m *MockDonationService) Donate(detail model.DonationDetail) error {
+func (m *MockDonationService) Donate(donation model.Donation) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Donate", detail)
+	ret := m.ctrl.Call(m, "Donate", donation)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Donate indicates an expected call of Donate.
-func (mr *MockDonationServiceMockRecorder) Donate(detail interface{}) *gomock.Call {
+func (mr *MockDonationServiceMockRecorder) Donate(donation interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Donate", reflect.TypeOf((*MockDonationService)(nil).Donate), detail)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Donate", reflect.TypeOf((*MockDonationService)(nil).Donate), donation)
 }
 
 // Donates mocks base method.
-func (m *MockDonationService) Donates(details []model.DonationDetail) (*service.SummaryDetail, error) {
+func (m *MockDonationService) Donates(donations []model.Donation) (*service.SummaryDetail, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Donates", details)
+	ret := m.ctrl.Call(m, "Donates", donations)
 	ret0, _ := ret[0].(*service.SummaryDetail)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Donates indicates an expected call of Donates.
-func (mr *MockDonationServiceMockRecorder) Donates(details interface{}) *gomock.Call {
+func (mr *MockDonationServiceMockRecorder) Donates(donations interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Donates", reflect.TypeOf((*MockDonationService)(nil).Donates), details)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Donates", reflect.TypeOf((*MockDonationService)(nil).Donates), donations)
 }
 
 // MakePermit mocks base method.

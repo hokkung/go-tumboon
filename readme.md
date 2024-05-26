@@ -21,19 +21,19 @@
     └──testutils/
 ```
 ### cmd
-A main directory for the application for entrypoint. I've created the sub directory inside and named it `make_permit_runner`
+A main directory of the application for entrypoint.
 ### config
-A directory for configuration for the application
+A directory for configuration of the application
 ### internal
-This directory is for all the packages that must not be shared into public or for other go packages or applications. There's five sub diractory inside. `data, di, model, runner` and `service`
-1. `data` for storing encrypted donation data file
-2. `di`  for codegen dependency injection of this project
-3. `model` for domain model of this project
-4. `runner` for application runner
-5. `service` for all of service classes in this project
-6. `validator` for validate struct inside this project.
+This directory is for all the packages that must not be shared into public or for other go packages or applications. There're five sub directorise inside. `data, di, model, runner, service` and `validator`
+1. `data` for storing encrypted donation data file.
+2. `di`  for codegen dependency injection of this project.
+3. `model` for domain model of this project.
+4. `runner` for application runner.
+5. `service` for all of service domains in this project.
+6. `validator` for struct validator.
 ### pkg
-A directory for collecting the packages that can be shared into public or other go packages such as `cipher, omise`.
+A directory for collecting all packages that can be shared into public or other go packages such as `cipher, omise`.
 ### testutils
 A directory for collecting all of test util functions.
 

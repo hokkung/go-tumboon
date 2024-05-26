@@ -8,6 +8,8 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
+	omise "github.com/omise/omise-go"
+	operations "github.com/omise/omise-go/operations"
 )
 
 // MockOmiseClient is a mock of OmiseClient interface.
@@ -33,16 +35,30 @@ func (m *MockOmiseClient) EXPECT() *MockOmiseClientMockRecorder {
 	return m.recorder
 }
 
-// Do mocks base method.
-func (m *MockOmiseClient) Do(result, op interface{}) error {
+// CreateCharge mocks base method.
+func (m *MockOmiseClient) CreateCharge(result *omise.Charge, createCharge *operations.CreateCharge) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Do", result, op)
+	ret := m.ctrl.Call(m, "CreateCharge", result, createCharge)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// Do indicates an expected call of Do.
-func (mr *MockOmiseClientMockRecorder) Do(result, op interface{}) *gomock.Call {
+// CreateCharge indicates an expected call of CreateCharge.
+func (mr *MockOmiseClientMockRecorder) CreateCharge(result, createCharge interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Do", reflect.TypeOf((*MockOmiseClient)(nil).Do), result, op)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCharge", reflect.TypeOf((*MockOmiseClient)(nil).CreateCharge), result, createCharge)
+}
+
+// CreateToken mocks base method.
+func (m *MockOmiseClient) CreateToken(result *omise.Token, createToken *operations.CreateToken) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateToken", result, createToken)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateToken indicates an expected call of CreateToken.
+func (mr *MockOmiseClientMockRecorder) CreateToken(result, createToken interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateToken", reflect.TypeOf((*MockOmiseClient)(nil).CreateToken), result, createToken)
 }

@@ -6,8 +6,8 @@ import (
 	"github.com/hokkung/go-tumboon/internal/runner"
 	ds "github.com/hokkung/go-tumboon/internal/service/donation"
 	ps "github.com/hokkung/go-tumboon/internal/service/payment"
-	omisecli "github.com/hokkung/go-tumboon/pkg/omise"
 	"github.com/hokkung/go-tumboon/internal/validator"
+	omisecli "github.com/hokkung/go-tumboon/pkg/omise"
 )
 
 var MakePermitRunnerSet = wire.NewSet(

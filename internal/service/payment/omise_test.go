@@ -41,20 +41,21 @@ func (suite *PaymentServiceTestSuite) TestDo() {
 		CVV:            "123",
 		AmountSubunits: 1000,
 	}
-
-	suite.mockOmiseClient.EXPECT().Do(gomock.Any(), &operations.CreateToken{
+	mockToken := &omise.Token{}
+	suite.mockOmiseClient.EXPECT().CreateToken(mockToken, &operations.CreateToken{
 		Name:            mockReq.Name,
 		Number:          mockReq.CCNumber,
 		ExpirationMonth: mockReq.ExpMonth,
 		ExpirationYear:  mockReq.ExpYear,
 		SecurityCode:    mockReq.CVV,
 	}).DoAndReturn(func(result interface{}, _ interface{}) error {
-		token := result.(*omise.Card)
+		token := result.(*omise.Token)
 		token.ID = "card_test_5fz2lvcrbnao9mkwz80"
 		return nil
 	})
 
-	suite.mockOmiseClient.EXPECT().Do(gomock.Any(), &operations.CreateCharge{
+	mockCharge := &omise.Charge{}
+	suite.mockOmiseClient.EXPECT().CreateCharge(mockCharge, &operations.CreateCharge{
 		Amount:   mockReq.AmountSubunits,
 		Currency: "thb",
 		Card:     "card_test_5fz2lvcrbnao9mkwz80",
@@ -71,7 +72,6 @@ func (suite *PaymentServiceTestSuite) TestDo() {
 	suite.Equal(mockReq.AmountSubunits, res.Amount)
 	suite.Equal(true, res.IsSuccess)
 	suite.Equal(mockReq, res.Source)
-
 }
 
 func (suite *PaymentServiceTestSuite) TestDoUnSupportedPaymentMethod() {

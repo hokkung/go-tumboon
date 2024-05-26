@@ -7,6 +7,7 @@ import (
 )
 
 // OmisePaymentService manages Omise payment.
+// The struct implements `PaymentService“ interface for handling Omise transactions.
 type OmisePaymentService struct {
 	omiseClient omisecli.OmiseClient
 }
@@ -21,7 +22,6 @@ func ProvideOmisePaymentService(omiseClient omisecli.OmiseClient) PaymentService
 	return NewOmisePaymentService(omiseClient)
 }
 
-
 // Do performs a payment transaction.
 func (s *OmisePaymentService) Do(payment PaymentRequest) (*PaymentResponse, error) {
 	switch payment.Type {
@@ -33,8 +33,8 @@ func (s *OmisePaymentService) Do(payment PaymentRequest) (*PaymentResponse, erro
 }
 
 func (s *OmisePaymentService) payByCard(payment PaymentRequest) (*PaymentResponse, error) {
-	var card omise.Card
-	err := s.omiseClient.Do(&card, &operations.CreateToken{
+	var token omise.Token
+	err := s.omiseClient.CreateToken(&token, &operations.CreateToken{
 		Name:            payment.Name,
 		Number:          payment.CCNumber,
 		ExpirationMonth: payment.ExpMonth,
@@ -46,10 +46,10 @@ func (s *OmisePaymentService) payByCard(payment PaymentRequest) (*PaymentRespons
 	}
 
 	var result omise.Charge
-	err = s.omiseClient.Do(&result, &operations.CreateCharge{
+	err = s.omiseClient.CreateCharge(&result, &operations.CreateCharge{
 		Amount:   payment.AmountSubunits,
 		Currency: "thb",
-		Card:     card.ID,
+		Card:     token.ID,
 	})
 	if err != nil {
 		return s.getFailedResponse(payment), err

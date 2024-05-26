@@ -22,7 +22,7 @@ func InitializeMakePermitRunnerApplication() (*MakePermitApplication, func(), er
 	if err != nil {
 		return nil, nil, err
 	}
-	omiseClient, cleanup, err := omisecli.ProvideOmiseClient(configuration)
+	omiseClient, err := omisecli.ProvideOmiseClient(configuration)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -34,6 +34,5 @@ func InitializeMakePermitRunnerApplication() (*MakePermitApplication, func(), er
 		Runner: donationRunner,
 	}
 	return makePermitApplication, func() {
-		cleanup()
 	}, nil
 }

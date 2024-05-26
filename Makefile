@@ -12,11 +12,11 @@ generate:
 run: all
 	@go run ./cmd/make_permit_runner/main.go
 
-all: generate build 
-
 test:
 	@echo "Running test..."
 	@go test ./...
 	@echo "Tests completed..."
+
+all: generate build test 
 
 .PHONY: build generate run all test

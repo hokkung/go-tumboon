@@ -8,7 +8,6 @@ import (
 	"os"
 	"sort"
 	"sync"
-	"sync/atomic"
 
 	v "github.com/go-playground/validator/v10"
 	"github.com/hokkung/go-tumboon/config"
@@ -19,9 +18,11 @@ import (
 )
 
 //go:generate mockgen -source=donation.go -destination=./mock/mock_donation.go
+
+// DonationService manages donation domain.
 type DonationService interface {
 	MakePermit() error
-	Donate(donation model.Donation) error
+	Donate(donation model.Donation) (*service.PaymentResponse, error)
 	Donates(donations []model.Donation) (*SummaryDetail, error)
 }
 
@@ -31,6 +32,7 @@ type donationService struct {
 	validator                 *v.Validate
 }
 
+// NewDonationService creates donation service.
 func NewDonationService(
 	paymentService service.PaymentService,
 	cfg config.Configuration,
@@ -43,6 +45,7 @@ func NewDonationService(
 	}
 }
 
+// ProvideDonationService provides donation service for dependency injection.
 func ProvideDonationService(
 	paymentService service.PaymentService,
 	cfg config.Configuration,
@@ -51,6 +54,7 @@ func ProvideDonationService(
 	return NewDonationService(paymentService, cfg, v)
 }
 
+// MakePermit performs donation process by reading all information from CSV file and reports the summary result.
 func (s donationService) MakePermit() error {
 	fmt.Println("performing donations...")
 
@@ -66,12 +70,12 @@ func (s donationService) MakePermit() error {
 
 	fmt.Println("done.")
 
-	s.report(summary)
+	s.buildSummaryReport(summary)
 
 	return nil
 }
 
-func (s donationService) report(summaryDetail *SummaryDetail) {
+func (s donationService) buildSummaryReport(summaryDetail *SummaryDetail) {
 	var topDonorsStr string
 	for i, topDonors := range summaryDetail.TopDonors {
 		if i != 0 {
@@ -91,6 +95,9 @@ func (s donationService) report(summaryDetail *SummaryDetail) {
 	)
 }
 
+// Donates performs donation process by given a list of donations and returns summary result.
+// The process in this method will be performed concurrently using Go channel and wait group.
+// The error arises throughout the donation process will not be addressed until the entire procedure is finished.
 func (s donationService) Donates(donations []model.Donation) (*SummaryDetail, error) {
 	if len(donations) <= 0 {
 		return &SummaryDetail{}, nil
@@ -102,28 +109,30 @@ func (s donationService) Donates(donations []model.Donation) (*SummaryDetail, er
 	donorToTotalAmount := make(map[string]int64)
 
 	var wg sync.WaitGroup
-	var mu sync.Mutex
-	limiter := make(chan struct{}, s.donationFileConfiguration.MaxConcurrent)
+	ch := make(chan *service.PaymentResponse, s.donationFileConfiguration.MaxConcurrent)
+	defer close(ch)
+
+	go func() {
+		for res := range ch {
+			if res.IsSuccess {
+				successfulDonated += res.Amount
+			} else {
+				faultyDonated += res.Amount
+			}
+			totalReceived += res.Amount
+			donorToTotalAmount[res.Source.Name] += res.Amount
+		}
+	}()
 
 	for _, donation := range donations {
 		wg.Add(1)
-		limiter <- struct{}{}
-
 		go func(donation model.Donation) {
 			defer wg.Done()
-			defer func() { <-limiter }()
-
-			err := s.Donate(donation)
+			res, err := s.Donate(donation)
 			if err != nil {
-				atomic.AddInt64(&faultyDonated, donation.AmountSubunits)
-			} else {
-				atomic.AddInt64(&successfulDonated, donation.AmountSubunits)
+				fmt.Println(err, "donation has been failed")
 			}
-			atomic.AddInt64(&totalReceived, donation.AmountSubunits)
-
-			mu.Lock()
-			donorToTotalAmount[donation.Name] += donation.AmountSubunits 
-			mu.Unlock()
+			ch <- res
 		}(donation)
 	}
 
@@ -167,7 +176,8 @@ func (s donationService) getTopDonors(
 	return topThreeDonors
 }
 
-func (s donationService) Donate(donation model.Donation) error {
+// Donate performs a single donation process.
+func (s donationService) Donate(donation model.Donation) (*service.PaymentResponse, error) {
 	return s.paymentService.Do(service.PaymentRequest{
 		Name:           donation.Name,
 		AmountSubunits: donation.AmountSubunits,
@@ -218,13 +228,13 @@ func (s donationService) getDonationDetailFromFile() ([]model.Donation, error) {
 
 		donation, err := model.NewDonation(record)
 		if err != nil {
-			fmt.Println("read record failed", err)
+			fmt.Println("read record from csv failed", err)
 			continue
 		}
 
 		err = s.validator.Struct(donation)
 		if err != nil {
-			fmt.Println("validate donation failed", donation, err)
+			fmt.Println("validate donation struct failed", donation, err)
 			continue
 		}
 

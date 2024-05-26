@@ -17,9 +17,9 @@ import (
 )
 
 const (
-	filePath                   = "../../../testutils/example_donation_file.csv.rot128"
-	filePathNoData             = "../../../testutils/example_donation_file_no_data.csv.rot128"
-	filePathWrongDataOneRecord = "../../../testutils/example_donation_file_wrong_data_one_record.csv.rot128"
+	filePath                           = "../../../testutils/example_donation_file.csv.rot128"
+	filePathNoData                     = "../../../testutils/example_donation_file_no_data.csv.rot128"
+	filePathContainsWrongDataOneRecord = "../../../testutils/example_donation_file_wrong_data_one_record.csv.rot128"
 )
 
 type DonationServiceTestSuite struct {
@@ -40,14 +40,14 @@ func TestDonationServiceTestSuite(t *testing.T) {
 func (suite *DonationServiceTestSuite) SetupSuite() {
 	testutils.GenerateMockDonationFile(filePath, "Name,AmountSubunits,CCNumber,CVV,ExpMonth,ExpYear\nJohn,100,1111111111111111,111,3,2026\nAmenda,20,2222222222222222,111,3,2026\nJohn,50,1111111111111111,111,3,2026\n")
 	testutils.GenerateMockDonationFile(filePathNoData, "Name,AmountSubunits,CCNumber,CVV,ExpMonth,ExpYear\n")
-	testutils.GenerateMockDonationFile(filePathWrongDataOneRecord, "Name,AmountSubunits,CCNumber,CVV,ExpMonth,ExpYear\nJohn,100,1111111111111111,111,3,2026\nAmenda,20,a,111,3,2026\nJohn,50,1111111111111111,111,3,2026\n")
+	testutils.GenerateMockDonationFile(filePathContainsWrongDataOneRecord, "Name,AmountSubunits,CCNumber,CVV,ExpMonth,ExpYear\nJohn,100,1111111111111111,111,3,2026\nAmenda,20,a,111,3,2026\nJohn,50,1111111111111111,111,3,2026\n")
 
 }
 
 func (suite *DonationServiceTestSuite) TearDownSuite() {
 	testutils.RemoveMockFile(filePath)
 	testutils.RemoveMockFile(filePathNoData)
-	testutils.RemoveMockFile(filePathWrongDataOneRecord)
+	testutils.RemoveMockFile(filePathContainsWrongDataOneRecord)
 }
 
 func (suite *DonationServiceTestSuite) TestMakePermit() {
@@ -89,10 +89,25 @@ func (suite *DonationServiceTestSuite) TestMakePermit() {
 		ExpYear:        2026,
 		Type:           ps.Card,
 	}
+	r1 := &ps.PaymentResponse{
+		IsSuccess: true,
+		Amount:    p1.AmountSubunits,
+		Source:    p1,
+	}
+	r2 := &ps.PaymentResponse{
+		IsSuccess: true,
+		Amount:    p2.AmountSubunits,
+		Source:    p2,
+	}
+	r3 := &ps.PaymentResponse{
+		IsSuccess: true,
+		Amount:    p3.AmountSubunits,
+		Source:    p3,
+	}
 
-	suite.mockService.EXPECT().Do(p1).Return(nil)
-	suite.mockService.EXPECT().Do(p2).Return(nil)
-	suite.mockService.EXPECT().Do(p3).Return(nil)
+	suite.mockService.EXPECT().Do(p1).Return(r1, nil)
+	suite.mockService.EXPECT().Do(p2).Return(r2, nil)
+	suite.mockService.EXPECT().Do(p3).Return(r3, nil)
 
 	err := suite.underTest.MakePermit()
 
@@ -116,12 +131,12 @@ func (suite *DonationServiceTestSuite) TestMakePermitNoData() {
 	suite.NoError(err)
 }
 
-func (suite *DonationServiceTestSuite) TestMakePermitWrongDataOneRecord() {
+func (suite *DonationServiceTestSuite) TestMakePermitContainsWrongDataOneRecord() {
 	suite.underTest = ds.NewDonationService(
 		suite.mockService,
 		config.Configuration{
 			DonationFileConfiguration: &config.DonationFileConfiguration{
-				DonationFileAddr: filePathWrongDataOneRecord,
+				DonationFileAddr: filePathContainsWrongDataOneRecord,
 				MaxConcurrent:    8,
 			},
 		},
@@ -146,11 +161,23 @@ func (suite *DonationServiceTestSuite) TestMakePermitWrongDataOneRecord() {
 		ExpYear:        2026,
 		Type:           ps.Card,
 	}
+	r1 := &ps.PaymentResponse{
+		IsSuccess: true,
+		Amount:    p1.AmountSubunits,
+		Source:    p1,
+	}
+	r3 := &ps.PaymentResponse{
+		IsSuccess: true,
+		Amount:    p3.AmountSubunits,
+		Source:    p3,
+	}
 
-	suite.mockService.EXPECT().Do(p1).Return(nil)
-	suite.mockService.EXPECT().Do(p3).Return(nil)
+	suite.mockService.EXPECT().Do(p1).Return(r1, nil)
+	suite.mockService.EXPECT().Do(p3).Return(r3, nil)
 
 	err := suite.underTest.MakePermit()
 
 	suite.NoError(err)
 }
+
+

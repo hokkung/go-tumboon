@@ -1,5 +1,7 @@
 package service
 
+
+// SummaryDetail collects summary report information.
 type SummaryDetail struct {
 	TotalReceived     int64
 	SuccessfulDonated int64
@@ -8,6 +10,7 @@ type SummaryDetail struct {
 	TopDonors         []Donor
 }
 
+// Donor collects donor information.
 type Donor struct {
 	Name   string
 	Amount int64

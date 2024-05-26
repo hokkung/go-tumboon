@@ -172,12 +172,12 @@ func (s donationService) getTopDonors(
 		return aggregatedDonors[i].Amount > aggregatedDonors[j].Amount
 	})
 
-	topThreeDonors := aggregatedDonors
+	topDonors := aggregatedDonors
 	if len(aggregatedDonors) > numberOfTopHighestDonation {
-		topThreeDonors = aggregatedDonors[:numberOfTopHighestDonation]
+		topDonors = aggregatedDonors[:numberOfTopHighestDonation]
 	}
 
-	return topThreeDonors
+	return topDonors
 }
 
 // Donate performs a single donation process.

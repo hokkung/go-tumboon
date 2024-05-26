@@ -36,11 +36,11 @@ type donationService struct {
 func NewDonationService(
 	paymentService service.PaymentService,
 	cfg config.Configuration,
-	v *v.Validate,
+	validator *v.Validate,
 ) *donationService {
 	return &donationService{
 		donationFileConfiguration: *cfg.DonationFileConfiguration,
-		validator:                 v,
+		validator:                 validator,
 		paymentService:            paymentService,
 	}
 }
@@ -49,9 +49,13 @@ func NewDonationService(
 func ProvideDonationService(
 	paymentService service.PaymentService,
 	cfg config.Configuration,
-	v *v.Validate,
+	validator *v.Validate,
 ) DonationService {
-	return NewDonationService(paymentService, cfg, v)
+	return NewDonationService(
+		paymentService,
+		cfg,
+		validator,
+	)
 }
 
 // MakePermit performs donation process by reading all information from CSV file and reports the summary result.

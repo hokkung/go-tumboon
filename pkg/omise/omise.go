@@ -3,22 +3,19 @@ package omisecli
 import (
 	"github.com/hokkung/go-tumboon/config"
 	"github.com/omise/omise-go"
+	"github.com/omise/omise-go/operations"
 )
 
 //go:generate mockgen -source=omise.go -destination=./mock/mock_omise.go
 
 // OmiseClient manages all Omise transactions.
 type OmiseClient interface {
-	Do(result interface{}, op interface{}) error
+	CreateToken(result *omise.Token, createToken *operations.CreateToken) error
+	CreateCharge(result *omise.Charge, createCharge *operations.CreateCharge) error
 }
 
 type omiseClient struct {
 	*omise.Client
-}
-
-// Do performs tracsaction using Omise client.
-func (c omiseClient) Do(result interface{}, op interface{}) error {
-	return c.Do(result, op)
 }
 
 // NewOmiseClient creates the wrapper for Omise client.
@@ -31,6 +28,24 @@ func NewOmiseClient(cfg config.Configuration) (*omiseClient, error) {
 }
 
 // ProvideOmiseClient provides the wrapper for Omise client for dependency injection.
-func ProvideOmiseClient(cfg config.Configuration) (OmiseClient, error) {
+func ProvideOmiseClient(
+	cfg config.Configuration,
+) (OmiseClient, error) {
 	return NewOmiseClient(cfg)
+}
+
+// CreateToken creates token.
+func (c *omiseClient) CreateToken(
+	result *omise.Token,
+	createToken *operations.CreateToken,
+) error {
+	return c.Client.Do(result, createToken)
+}
+
+// CreateCharge creates a charge.
+func (c *omiseClient) CreateCharge(
+	result *omise.Charge,
+	createCharge *operations.CreateCharge,
+) error {
+	return c.Client.Do(result, createCharge)
 }

@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewDonationDetail(t *testing.T) {
+func TestNewDonation(t *testing.T) {
 	name := "John"
 	amountSubunits := "100"
 	CCNumber := "1234"
@@ -18,7 +18,7 @@ func TestNewDonationDetail(t *testing.T) {
 
 	recs := []string{name, amountSubunits, CCNumber, CVV, expMonth, expYear}
 
-	detail, err := model.NewDonationDetail(recs)
+	detail, err := model.NewDonation(recs)
 
 	assert.Nil(t, err)
 	assert.Equal(t, name, detail.Name)
@@ -29,7 +29,7 @@ func TestNewDonationDetail(t *testing.T) {
 	assert.Equal(t, 2025, detail.ExpYear)
 }
 
-func TestNewDonationDetailInvalidRawData(t *testing.T) {
+func TestNewDonationInvalidRawData(t *testing.T) {
 	name := "John"
 	amountSubunits := "100"
 	CCNumber := "1234"
@@ -38,14 +38,14 @@ func TestNewDonationDetailInvalidRawData(t *testing.T) {
 
 	recs := []string{name, amountSubunits, CCNumber, CVV, expMonth}
 
-	detail, err := model.NewDonationDetail(recs)
+	detail, err := model.NewDonation(recs)
 
 	assert.Error(t, err)
 	assert.EqualError(t, err, model.ErrInvalidRawDataSize.Error())
 	assert.Nil(t, detail)
 }
 
-func TestNewDonationDetailWrongAmountSubunits(t *testing.T) {
+func TestNewDonationWrongAmountSubunits(t *testing.T) {
 	name := "John"
 	amountSubunits := "a"
 	CCNumber := "1234"
@@ -55,13 +55,13 @@ func TestNewDonationDetailWrongAmountSubunits(t *testing.T) {
 
 	recs := []string{name, amountSubunits, CCNumber, CVV, expMonth, expYear}
 
-	detail, err := model.NewDonationDetail(recs)
+	detail, err := model.NewDonation(recs)
 
 	assert.Error(t, err)
 	assert.Nil(t, detail)
 }
 
-func TestNewDonationDetailWrongMonth(t *testing.T) {
+func TestNewDonationWrongMonth(t *testing.T) {
 	name := "John"
 	amountSubunits := "100"
 	CCNumber := "1234"
@@ -71,13 +71,13 @@ func TestNewDonationDetailWrongMonth(t *testing.T) {
 
 	recs := []string{name, amountSubunits, CCNumber, CVV, expMonth, expYear}
 
-	detail, err := model.NewDonationDetail(recs)
+	detail, err := model.NewDonation(recs)
 
 	assert.Error(t, err)
 	assert.Nil(t, detail)
 }
 
-func TestNewDonationDetailWrongYear(t *testing.T) {
+func TestNewDonationWrongYear(t *testing.T) {
 	name := "John"
 	amountSubunits := "100"
 	CCNumber := "1234"
@@ -87,7 +87,7 @@ func TestNewDonationDetailWrongYear(t *testing.T) {
 
 	recs := []string{name, amountSubunits, CCNumber, CVV, expMonth, expYear}
 
-	detail, err := model.NewDonationDetail(recs)
+	detail, err := model.NewDonation(recs)
 
 	assert.Error(t, err)
 	assert.Nil(t, detail)

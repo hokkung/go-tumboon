@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-type DonationDetail struct {
+type Donation struct {
 	Name           string     `validate:"required"`
 	AmountSubunits int64      `validate:"required"`
 	CCNumber       string     `validate:"required,len=16"`
@@ -19,7 +19,7 @@ var (
 	ErrInvalidRawDataSize = errors.New("invalid raw data size")
 )
 
-func NewDonationDetail(raw []string) (*DonationDetail, error) {
+func NewDonation(raw []string) (*Donation, error) {
 	if len(raw) < 6 {
 		return nil, ErrInvalidRawDataSize
 	}
@@ -39,7 +39,7 @@ func NewDonationDetail(raw []string) (*DonationDetail, error) {
 		return nil, err
 	}
 
-	return &DonationDetail{
+	return &Donation{
 		Name:           raw[0],
 		AmountSubunits: amont,
 		CCNumber:       raw[2],

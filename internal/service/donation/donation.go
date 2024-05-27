@@ -234,6 +234,8 @@ func (s *donationService) getDonationDetailFromFile() ([]model.Donation, error) 
 			if err == io.EOF {
 				break
 			}
+			fmt.Println("read row from csv failed", err)
+			continue
 		}
 
 		if s.isHeaderFile(row) {
@@ -242,7 +244,7 @@ func (s *donationService) getDonationDetailFromFile() ([]model.Donation, error) 
 
 		donation, err := model.NewDonation(row)
 		if err != nil {
-			fmt.Println("read row from csv failed", err)
+			fmt.Println("create donation struct failed", err)
 			continue
 		}
 

@@ -41,15 +41,15 @@ func (suite *PaymentServiceTestSuite) TestDo() {
 		CVV:            "123",
 		AmountSubunits: 1000,
 	}
-	mockToken := &omise.Token{}
-	suite.mockOmiseClient.EXPECT().CreateToken(mockToken, &operations.CreateToken{
+	mockCard := &omise.Card{}
+	suite.mockOmiseClient.EXPECT().CreateToken(mockCard, &operations.CreateToken{
 		Name:            mockReq.Name,
 		Number:          mockReq.CCNumber,
 		ExpirationMonth: mockReq.ExpMonth,
 		ExpirationYear:  mockReq.ExpYear,
 		SecurityCode:    mockReq.CVV,
 	}).DoAndReturn(func(result interface{}, _ interface{}) error {
-		token := result.(*omise.Token)
+		token := result.(*omise.Card)
 		token.ID = "card_test_5fz2lvcrbnao9mkwz80"
 		return nil
 	})

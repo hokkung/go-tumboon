@@ -10,7 +10,7 @@ import (
 
 // OmiseClient manages all Omise transactions.
 type OmiseClient interface {
-	CreateToken(result *omise.Token, createToken *operations.CreateToken) error
+	CreateToken(result *omise.Card, createToken *operations.CreateToken) error
 	CreateCharge(result *omise.Charge, createCharge *operations.CreateCharge) error
 }
 
@@ -36,7 +36,7 @@ func ProvideOmiseClient(
 
 // CreateToken creates token.
 func (c *omiseClient) CreateToken(
-	result *omise.Token,
+	result *omise.Card,
 	createToken *operations.CreateToken,
 ) error {
 	return c.Client.Do(result, createToken)

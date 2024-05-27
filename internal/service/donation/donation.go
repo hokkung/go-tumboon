@@ -59,7 +59,7 @@ func ProvideDonationService(
 }
 
 // MakePermit performs donation process by reading all information from CSV file and reports the summary result.
-func (s donationService) MakePermit() error {
+func (s *donationService) MakePermit() error {
 	fmt.Println("performing donations...")
 
 	donations, err := s.getDonationDetailFromFile()
@@ -79,7 +79,7 @@ func (s donationService) MakePermit() error {
 	return nil
 }
 
-func (s donationService) buildSummaryReport(summaryDetail *SummaryDetail) {
+func (s *donationService) buildSummaryReport(summaryDetail *SummaryDetail) {
 	var topDonorsStr string
 	for i, topDonors := range summaryDetail.TopDonors {
 		if i != 0 {
@@ -102,21 +102,25 @@ func (s donationService) buildSummaryReport(summaryDetail *SummaryDetail) {
 // Donates performs donation process by given a list of donations and returns summary result.
 // The process in this method will be performed concurrently using Go channel and wait group.
 // The error arises throughout the donation process will not be addressed until the entire procedure is finished.
-func (s donationService) Donates(donations []model.Donation) (*SummaryDetail, error) {
+func (s *donationService) Donates(donations []model.Donation) (*SummaryDetail, error) {
 	if len(donations) <= 0 {
 		return &SummaryDetail{}, nil
 	}
 
-	var faultyDonated int64
-	var successfulDonated int64
-	var totalReceived int64
+	var (
+		faultyDonated     int64
+		successfulDonated int64
+		totalReceived     int64
+
+		wgSender   sync.WaitGroup
+		wgReceiver sync.WaitGroup
+	)
 	donorToTotalAmount := make(map[string]int64)
-
-	var wg sync.WaitGroup
 	ch := make(chan *service.PaymentResponse, s.donationFileConfiguration.MaxConcurrent)
-	defer close(ch)
 
+	wgReceiver.Add(1)
 	go func() {
+		defer wgReceiver.Done()
 		for res := range ch {
 			if res.IsSuccess {
 				successfulDonated += res.Amount
@@ -129,9 +133,9 @@ func (s donationService) Donates(donations []model.Donation) (*SummaryDetail, er
 	}()
 
 	for _, donation := range donations {
-		wg.Add(1)
+		wgSender.Add(1)
 		go func(donation model.Donation) {
-			defer wg.Done()
+			defer wgSender.Done()
 			res, err := s.Donate(donation)
 			if err != nil {
 				fmt.Println(err, "donation has been failed")
@@ -140,7 +144,9 @@ func (s donationService) Donates(donations []model.Donation) (*SummaryDetail, er
 		}(donation)
 	}
 
-	wg.Wait()
+	wgSender.Wait()
+	close(ch)
+	wgReceiver.Wait()
 
 	numberOfDonor := len(donorToTotalAmount)
 	topThreeDonors := s.getTopDonors(
@@ -158,7 +164,7 @@ func (s donationService) Donates(donations []model.Donation) (*SummaryDetail, er
 	}, nil
 }
 
-func (s donationService) getTopDonors(
+func (s *donationService) getTopDonors(
 	donorToTotalAmount map[string]int64,
 	numberOfDonor int,
 	numberOfTopHighestDonation int,
@@ -169,7 +175,11 @@ func (s donationService) getTopDonors(
 	}
 
 	sort.Slice(aggregatedDonors, func(i, j int) bool {
-		return aggregatedDonors[i].Amount > aggregatedDonors[j].Amount
+		if aggregatedDonors[i].Amount == aggregatedDonors[j].Amount {
+			return aggregatedDonors[i].Name < aggregatedDonors[j].Name
+		} else {
+			return aggregatedDonors[i].Amount > aggregatedDonors[j].Amount
+		}
 	})
 
 	topDonors := aggregatedDonors
@@ -181,7 +191,7 @@ func (s donationService) getTopDonors(
 }
 
 // Donate performs a single donation process.
-func (s donationService) Donate(donation model.Donation) (*service.PaymentResponse, error) {
+func (s *donationService) Donate(donation model.Donation) (*service.PaymentResponse, error) {
 	return s.paymentService.Do(service.PaymentRequest{
 		Name:           donation.Name,
 		AmountSubunits: donation.AmountSubunits,
@@ -193,7 +203,7 @@ func (s donationService) Donate(donation model.Donation) (*service.PaymentRespon
 	})
 }
 
-func (s donationService) getDonationDetailFromFile() ([]model.Donation, error) {
+func (s *donationService) getDonationDetailFromFile() ([]model.Donation, error) {
 	file, err := os.Open(s.donationFileConfiguration.DonationFileAddr)
 	if err != nil {
 		return nil, err
@@ -248,7 +258,7 @@ func (s donationService) getDonationDetailFromFile() ([]model.Donation, error) {
 	return donations, nil
 }
 
-func (s donationService) isHeaderFile(row []string) bool {
+func (s *donationService) isHeaderFile(row []string) bool {
 	return row[0] == "Name" &&
 		row[1] == "AmountSubunits" &&
 		row[2] == "CCNumber" &&

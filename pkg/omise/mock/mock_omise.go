@@ -50,7 +50,7 @@ func (mr *MockOmiseClientMockRecorder) CreateCharge(result, createCharge interfa
 }
 
 // CreateToken mocks base method.
-func (m *MockOmiseClient) CreateToken(result *omise.Token, createToken *operations.CreateToken) error {
+func (m *MockOmiseClient) CreateToken(result *omise.Card, createToken *operations.CreateToken) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateToken", result, createToken)
 	ret0, _ := ret[0].(error)

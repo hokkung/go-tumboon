@@ -33,8 +33,8 @@ func (s *OmisePaymentService) Do(payment PaymentRequest) (*PaymentResponse, erro
 }
 
 func (s *OmisePaymentService) payByCard(payment PaymentRequest) (*PaymentResponse, error) {
-	var token omise.Token
-	err := s.omiseClient.CreateToken(&token, &operations.CreateToken{
+	var card omise.Card
+	err := s.omiseClient.CreateToken(&card, &operations.CreateToken{
 		Name:            payment.Name,
 		Number:          payment.CCNumber,
 		ExpirationMonth: payment.ExpMonth,
@@ -49,7 +49,7 @@ func (s *OmisePaymentService) payByCard(payment PaymentRequest) (*PaymentRespons
 	err = s.omiseClient.CreateCharge(&result, &operations.CreateCharge{
 		Amount:   payment.AmountSubunits,
 		Currency: "thb",
-		Card:     token.ID,
+		Card:     card.ID,
 	})
 	if err != nil {
 		return s.getFailedResponse(payment), err
